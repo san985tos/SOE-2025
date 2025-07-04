@@ -3,17 +3,15 @@
   hosts: localhost
   gather_facts: false
   vars:
-
-
     controller_host: url
     controller_username: username
     controller_password: password
     validate_certs: false
+
     project_name: demo
     inventory_name: Demo Inventory
     credential_name: aws
     job_type: run
-
 
     github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
 
@@ -42,7 +40,7 @@
 
     - name: Create job templates for each playbook
       ansible.controller.job_template:
-        controller_host: "{{ controller_hostname }}"
+        controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_username }}"
         controller_password: "{{ controller_password }}"
         validate_certs: "{{ validate_certs }}"
