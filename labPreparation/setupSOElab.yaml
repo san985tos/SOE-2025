@@ -30,7 +30,11 @@
     - name: Extract playbook file names
       set_fact:
         playbooks: >-
-          {{ github_response.json | selectattr('name', 'search', '\\.ya?ml$') | map(attribute='name') | map('regex_replace', '^(.*)$', 'templates/\\1') | list }}
+          {{ github_response.json
+             | selectattr('name', 'match', '.*\\.ya?ml$')
+             | map(attribute='name')
+             | map('regex_replace', '^(.*)$', 'templates/\\1')
+             | list }}
 
     - name: Show parsed playbook list
       debug:
