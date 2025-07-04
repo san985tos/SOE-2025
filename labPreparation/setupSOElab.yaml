@@ -29,7 +29,7 @@
       set_fact:
         playbooks: >-
           {{ github_response.json
-             | selectattr('name', 'match', '.*\\.ya?ml$')
+             | selectattr('name', 'regex_search', '\\.ya?ml$')
              | map(attribute='name')
              | map('regex_replace', '^(.*)$', 'templates/\\1')
              | list }}
