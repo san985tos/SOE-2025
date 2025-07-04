@@ -1,9 +1,9 @@
 ---
-- name: Auto-detect playbooks and create job templates
+- name: Fetch playbooks from GitHub repo
   hosts: localhost
   gather_facts: no
   vars:
-    repo_path: /path/to/SOE-2025
+    github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
     controller_host: https://your-aap-controller
     controller_username: admin
     controller_password: your-password
@@ -15,20 +15,27 @@
     job_type: run
 
   tasks:
-    - name: Find all .yml playbooks in templates/ directory
-      ansible.builtin.find:
-        paths: "{{ repo_path }}/templates"
-        patterns: "*.yml"
-        recurse: no
-      register: found_playbooks
+    - name: Get contents of templates directory from GitHub
+      uri:
+        url: "{{ github_api_url }}"
+        method: GET
+        return_content: yes
+        headers:
+          Accept: application/vnd.github.v3+json
+      register: github_response
 
-    - name: Create job templates for each playbook
+    - name: Extract .yml playbooks from GitHub response
+      set_fact:
+        playbooks: >-
+          {{ github_response.json | selectattr('name', 'search', '\\.yml$') | map(attribute='name') | map('regex_replace', '^(.*)$', 'templates/\\1') | list }}
+
+    - name: Create job templates from playbooks
       awx.awx.job_template:
-        name: "{{ item.path | basename | regex_replace('.yml$', '') }}"
+        name: "{{ item | basename | regex_replace('.yml$', '') }}"
         project: "{{ project_name }}"
         inventory: "{{ inventory_name }}"
         credential: "{{ credential_name }}"
-        playbook: "templates/{{ item.path | basename }}"
+        playbook: "{{ item }}"
         job_type: "{{ job_type }}"
         become_enabled: true
         ask_variables_on_launch: true
@@ -36,4 +43,4 @@
         controller_username: "{{ controller_username }}"
         controller_password: "{{ controller_password }}"
         validate_certs: "{{ validate_certs }}"
-      loop: "{{ found_playbooks.files }}"
+      loop: "{{ playbooks }}"
