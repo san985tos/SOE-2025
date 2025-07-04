@@ -1,11 +1,12 @@
 ---
-- name: Dynamically create job templates for playbooks in Git project
+- name: Create job templates for predefined playbooks
   hosts: localhost
   gather_facts: false
   vars:
-    controller_host: url
-    controller_username: username
-    controller_password: password
+
+    controller_host: https://your-controller-url
+    controller_username: admin
+    controller_password: your-password
     validate_certs: false
 
     project_name: demo
@@ -13,41 +14,17 @@
     credential_name: aws
     job_type: run
 
-    github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
+    playbooks:
+      - templates/1-VPCsetup.yaml
+      - templates/2-createRHELs.yaml
 
   tasks:
-    - name: Get list of playbooks from GitHub templates directory
-      uri:
-        url: "{{ github_api_url }}"
-        method: GET
-        return_content: yes
-        headers:
-          Accept: application/vnd.github.v3+json
-      register: github_response
-
-    - name: Extract playbook file names
-      set_fact:
-        playbooks: >-
-          {{
-            github_response.json
-            | selectattr('type', 'equalto', 'file')
-            | selectattr('name', 'search', '\\.ya?ml$')
-            | map(attribute='name')
-            | map('regex_replace', '^(.*)$', 'templates/\\1')
-            | list
-          }}
-
     - name: Show parsed playbook list
       debug:
         var: playbooks
 
     - name: Create job templates for each playbook
       ansible.controller.job_template:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_password: "{{ controller_password }}"
-        validate_certs: "{{ validate_certs }}"
-
         name: "{{ item | basename | regex_replace('\\.ya?ml$', '') }}"
         project: "{{ project_name }}"
         playbook: "{{ item }}"
@@ -56,5 +33,9 @@
         job_type: "{{ job_type }}"
         become_enabled: true
         ask_variables_on_launch: true
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_password: "{{ controller_password }}"
+        validate_certs: "{{ validate_certs }}"
         state: present
       loop: "{{ playbooks }}"
