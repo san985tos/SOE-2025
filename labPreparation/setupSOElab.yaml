@@ -1,24 +1,22 @@
 ---
-- name: Fetch playbooks from GitHub repo and create Job Templates (Red Hat supported version)
+- name: Dynamically create job templates for playbooks in Git project
   hosts: localhost
-  gather_facts: no
-  collections:
-    - redhat_cop.controller_configuration
-
+  gather_facts: false
   vars:
-    github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
-    controller_host: "https://your-aap-controller"
+    controller_hostname: "https://your-controller.example.com"
     controller_username: "admin"
     controller_password: "your-password"
     validate_certs: false
 
-    project_name: demo
-    inventory_name: Demo Inventory
-    credential_name: aws
-    job_type: run
+    project_name: "demo"
+    inventory_name: "Demo Inventory"
+    credential_name: "aws"
+    job_type: "run"
+
+    github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
 
   tasks:
-    - name: Get contents of templates directory from GitHub
+    - name: Get list of playbooks from GitHub templates directory
       uri:
         url: "{{ github_api_url }}"
         method: GET
@@ -27,27 +25,25 @@
           Accept: application/vnd.github.v3+json
       register: github_response
 
-    - name: Extract .yml playbooks from GitHub response
+    - name: Extract playbook file names
       set_fact:
         playbooks: >-
-          {{ github_response.json | selectattr('name', 'search', '\\.yml$')
-                                   | map(attribute='name')
-                                   | map('regex_replace', '^(.*)$', 'templates/\\1')
-                                   | list }}
+          {{ github_response.json | selectattr('name', 'search', '\\.ya?ml$') | map(attribute='name') | map('regex_replace', '^(.*)$', 'templates/\\1') | list }}
 
-    - name: Create job templates using redhat_cop.controller_configuration
-      job_template:
-        name: "{{ item | basename | regex_replace('\\.yml$', '') }}"
-        project: "{{ project_name }}"
-        inventory: "{{ inventory_name }}"
-        credential: "{{ credential_name }}"
-        playbook: "{{ item }}"
-        job_type: "{{ job_type }}"
-        become_enabled: true
-        ask_variables_on_launch: true
-        controller_host: "{{ controller_host }}"
+    - name: Create job templates for each playbook
+      ansible.controller.job_template:
+        controller_host: "{{ controller_hostname }}"
         controller_username: "{{ controller_username }}"
         controller_password: "{{ controller_password }}"
         validate_certs: "{{ validate_certs }}"
+
+        name: "{{ item | basename | regex_replace('\\.ya?ml$', '') }}"
+        project: "{{ project_name }}"
+        playbook: "{{ item }}"
+        inventory: "{{ inventory_name }}"
+        credential: "{{ credential_name }}"
+        job_type: "{{ job_type }}"
+        become_enabled: true
+        ask_variables_on_launch: true
+        state: present
       loop: "{{ playbooks }}"
-      delegate_to: localhost
