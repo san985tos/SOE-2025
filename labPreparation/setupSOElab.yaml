@@ -3,15 +3,17 @@
   hosts: localhost
   gather_facts: false
   vars:
-    controller_hostname: "https://your-controller.example.com"
-    controller_username: "admin"
-    controller_password: "your-password"
-    validate_certs: false
 
-    project_name: "demo"
-    inventory_name: "Demo Inventory"
-    credential_name: "aws"
-    job_type: "run"
+
+    controller_host: url
+    controller_username: username
+    controller_password: password
+    validate_certs: false
+    project_name: demo
+    inventory_name: Demo Inventory
+    credential_name: aws
+    job_type: run
+
 
     github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
 
