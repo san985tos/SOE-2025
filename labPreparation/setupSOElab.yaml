@@ -32,7 +32,7 @@
         credential: "{{ credential_name }}"
         job_type: "{{ job_type }}"
         become_enabled: true
-        ask_variables_on_launch: true
+        ask_variables_on_launch: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_username }}"
         controller_password: "{{ controller_password }}"
