@@ -1,12 +1,15 @@
 ---
-- name: Fetch playbooks from GitHub repo
+- name: Fetch playbooks from GitHub repo and create Job Templates (Red Hat supported version)
   hosts: localhost
   gather_facts: no
+  collections:
+    - redhat_cop.controller_configuration
+
   vars:
     github_api_url: "https://api.github.com/repos/san985tos/SOE-2025/contents/templates"
-    controller_host: https://your-aap-controller
-    controller_username: admin
-    controller_password: your-password
+    controller_host: "https://your-aap-controller"
+    controller_username: "admin"
+    controller_password: "your-password"
     validate_certs: false
 
     project_name: demo
@@ -27,11 +30,14 @@
     - name: Extract .yml playbooks from GitHub response
       set_fact:
         playbooks: >-
-          {{ github_response.json | selectattr('name', 'search', '\\.yml$') | map(attribute='name') | map('regex_replace', '^(.*)$', 'templates/\\1') | list }}
+          {{ github_response.json | selectattr('name', 'search', '\\.yml$')
+                                   | map(attribute='name')
+                                   | map('regex_replace', '^(.*)$', 'templates/\\1')
+                                   | list }}
 
-    - name: Create job templates from playbooks
-      awx.awx.job_template:
-        name: "{{ item | basename | regex_replace('.yml$', '') }}"
+    - name: Create job templates using redhat_cop.controller_configuration
+      job_template:
+        name: "{{ item | basename | regex_replace('\\.yml$', '') }}"
         project: "{{ project_name }}"
         inventory: "{{ inventory_name }}"
         credential: "{{ credential_name }}"
@@ -44,3 +50,4 @@
         controller_password: "{{ controller_password }}"
         validate_certs: "{{ validate_certs }}"
       loop: "{{ playbooks }}"
+      delegate_to: localhost
