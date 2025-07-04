@@ -1,0 +1,39 @@
+---
+- name: Auto-detect playbooks and create job templates
+  hosts: localhost
+  gather_facts: no
+  vars:
+    repo_path: /path/to/SOE-2025
+    controller_host: https://your-aap-controller
+    controller_username: admin
+    controller_password: your-password
+    validate_certs: false
+
+    project_name: demo
+    inventory_name: Demo Inventory
+    credential_name: aws
+    job_type: run
+
+  tasks:
+    - name: Find all .yml playbooks in templates/ directory
+      ansible.builtin.find:
+        paths: "{{ repo_path }}/templates"
+        patterns: "*.yml"
+        recurse: no
+      register: found_playbooks
+
+    - name: Create job templates for each playbook
+      awx.awx.job_template:
+        name: "{{ item.path | basename | regex_replace('.yml$', '') }}"
+        project: "{{ project_name }}"
+        inventory: "{{ inventory_name }}"
+        credential: "{{ credential_name }}"
+        playbook: "templates/{{ item.path | basename }}"
+        job_type: "{{ job_type }}"
+        become_enabled: true
+        ask_variables_on_launch: true
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_password: "{{ controller_password }}"
+        validate_certs: "{{ validate_certs }}"
+      loop: "{{ found_playbooks.files }}"
