@@ -31,7 +31,7 @@
         inventory: "{{ inventory_name }}"
         credential: "{{ credential_name }}"
         job_type: "{{ job_type }}"
-        become_enabled: true
+        become_enabled: false
         ask_variables_on_launch: false
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_username }}"
