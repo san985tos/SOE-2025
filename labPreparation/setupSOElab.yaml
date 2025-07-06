@@ -17,6 +17,7 @@
     playbooks:
       - templates/1-VPCsetup.yaml
       - templates/2-createRHELs.yaml
+      - templates/satellite-VM-Deployment
 
   tasks:
     - name: Show parsed playbook list
