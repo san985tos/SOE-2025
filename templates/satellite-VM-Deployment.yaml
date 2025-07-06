@@ -1,16 +1,16 @@
 ---
-- name: Satellite, deploy VM
+- name: Create RHEL 9 EC2 instance.
   hosts: localhost
   gather_facts: no
   vars:
     aws_region: us-east-2
     vpc_name: SOEdemo
     aws_instance_type: m5.2xlarge
-    aws_instance_ami_id: ami-0d7d37d0ba6acd779  # RHEL 8.0 Access2
-    aws_instance_name: "satellite-6.17"
-    aws_key_pair_name: demo
-    aws_security_group_name: SOEdemo_sg
+    aws_instance_ami_id: ami-0d7d37d0ba6acd779
+    aws_instance_name: "RHEL9-{{ 99999 | random }}"
+    aws_key_pair_name: demo  
     number_of_instances: 1
+
 
   tasks:
     - name: Get VPC info by Name tag
@@ -27,13 +27,6 @@
           vpc-id: "{{ vpc_info.vpcs[0].id }}"
       register: subnet_info
 
-    - name: Get security group ID by name
-      amazon.aws.ec2_security_group_info:
-        region: "{{ aws_region }}"
-        filters:
-          group-name: "{{ aws_security_group_name }}"
-      register: sg_info
-
     - name: Show first Subnet ID found
       debug:
         msg: "Subnet ID is {{ subnet_info.subnets[0].id }}"
@@ -45,11 +38,11 @@
         image_id: "{{ aws_instance_ami_id }}"
         region: "{{ aws_region }}"
         count: "{{ number_of_instances }}"
+        security_group: "ansible_tower_sg"
         wait: yes
         network:
-          assign_public_ip: yes
-          subnet_id: "{{ subnet_info.subnets[0].id }}"
-          security_group_id: "{{ sg_info.security_groups[0].group_id }}"
+          assign_public_ip: yes   
+        vpc_subnet_id: "{{ subnet_info.subnets[0].id }}"
         tags:
           Name: "{{ aws_instance_name }}"
           Type: RHEL
