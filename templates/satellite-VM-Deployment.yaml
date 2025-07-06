@@ -1,5 +1,5 @@
 ---
-- name: Create RHEL 8 EC2 instance.
+- name: Satellite, deploy VM
   hosts: localhost
   gather_facts: no
   vars:
@@ -9,7 +9,7 @@
     aws_instance_ami_id: ami-0d7d37d0ba6acd779  # RHEL 8.0 Access2
     aws_instance_name: "satellite-6.17"
     aws_key_pair_name: demo
-    aws_security_group_name: ansible_tower_sg
+    aws_security_group_name: SOEdemo_sg
     number_of_instances: 1
 
   tasks:
