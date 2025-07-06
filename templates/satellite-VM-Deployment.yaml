@@ -7,7 +7,7 @@
     vpc_name: SOEdemo
     aws_instance_type: m5.2xlarge
     aws_instance_ami_id: ami-0d7d37d0ba6acd779
-    aws_instance_name: "RHEL9-{{ 99999 | random }}"
+    aws_instance_name: "Satellite-6.17"
     aws_key_pair_name: demo  
     number_of_instances: 1
 
