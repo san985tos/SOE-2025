@@ -42,17 +42,6 @@
         --enable=satellite-6.17-for-rhel-9-x86_64-rpms
         --enable=satellite-maintenance-6.17-for-rhel-9-x86_64-rpms
 
-    - name: Install fapolicyd
-      dnf:
-        name: fapolicyd
-        state: present
-
-    - name: Enable and start fapolicyd
-      systemd:
-        name: fapolicyd
-        enabled: yes
-        state: started
-
     - name: Upgrade system packages
       dnf:
         name: '*'
