@@ -25,7 +25,6 @@
         subscription-manager register
         --username={{ rhsm_username }}
         --password={{ rhsm_password }}
-        --auto-attach
       register: register_output
       failed_when: "'System has been registered' not in register_output.stdout and 'This system is already registered' not in register_output.stdout"
 
