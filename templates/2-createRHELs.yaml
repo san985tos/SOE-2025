@@ -8,6 +8,7 @@
     aws_instance_type: t2.micro
     aws_instance_ami_id: ami-0a482bdfdf4a33e61
     aws_key_pair_name: demo  
+    aws_environment: prod
     number_of_instances: 2
 
     # RHEL 9 ami-0a482bdfdf4a33e61
@@ -47,6 +48,7 @@
         tags:
           Name: "RHEL9-{{ 99999 | random }}"
           Type: RHEL
+          Environment: "{{ aws_environment }}"
       register: ec2_result
 
     - name: Inspect ec2_result content
