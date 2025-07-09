@@ -1,0 +1,26 @@
+---
+- name: Setup Red Hat Satellite 6.17 on RHEL 9
+  hosts: all
+  become: yes
+  vars:
+    satellite_register_command: "subscription-manager config --rhsm.manage_repos=1"
+
+  tasks:
+    - name: Remove RHUI packages
+      yum:
+        name:
+          - rh-amazon-rhui-client*
+          - rhui-aws-rhel9
+          - rh-amazon-rhui-config
+          - rhui-client-config-server-9
+        state: absent
+        autoremove: yes
+
+    - name: Clean subscription manager
+      command: subscription-manager clean
+
+    - name: Enable repo management in subscription-manager config
+      command: subscription-manager config --rhsm.manage_repos=1
+
+    - name: Register to Satellite
+      shell: "{{ subscription_config_cmd }}"
