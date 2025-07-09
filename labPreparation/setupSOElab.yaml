@@ -19,6 +19,7 @@
       - templates/2-createRHELs.yaml
       - templates/satellite-VM-Deployment.yaml
       - templates/satellite-APP-Deployment.yaml
+      - templates/3-register2satellite.yaml
 
   tasks:
     - name: Show parsed playbook list
