@@ -45,7 +45,7 @@
         vpc_subnet_id: "{{ subnet_info.subnets[0].id }}"
         tags:
           Name: "{{ aws_instance_name }}"
-          Type: "{{ aws_instance_name }}"
+          Type: "Satellite-6.17"
         volumes:
           - device_name: /dev/xvda
             ebs:
