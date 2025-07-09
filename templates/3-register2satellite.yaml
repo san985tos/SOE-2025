@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    satellite_register_command: "subscription-manager config --rhsm.manage_repos=1"
+    satellite_register_command: "put command here"
 
   tasks:
     - name: Remove RHUI packages
