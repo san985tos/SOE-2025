@@ -23,4 +23,4 @@
       command: subscription-manager config --rhsm.manage_repos=1
 
     - name: Register to Satellite
-      shell: "{{ subscription_config_cmd }}"
+      shell: "{{ satellite_register_command }}"
