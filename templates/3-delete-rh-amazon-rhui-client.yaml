@@ -4,19 +4,12 @@
   become: yes
 
   tasks:
-    - name: Remove RHUI packages
-      yum:
-        name:
-          - rh-amazon-rhui-client*
-          - rhui-aws-rhel9
-          - rh-amazon-rhui-config
-          - rhui-client-config-server-9
-        state: absent
-        autoremove: yes
+    - name: Remove RHUI packages using shell
+      shell: |
+        yum remove -y rh-amazon-rhui-client* rhui-aws-rhel9 rh-amazon-rhui-config rhui-client-config-server-9
 
     - name: Clean subscription manager
-      command: subscription-manager clean
+      shell: subscription-manager clean
 
     - name: Enable repo management in subscription-manager config
-      command: subscription-manager config --rhsm.manage_repos=1
-
+      shell: subscription-manager config --rhsm.manage_repos=1
