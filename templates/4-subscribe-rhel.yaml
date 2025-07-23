@@ -1,23 +1,29 @@
 ---
-- name: Register RHEL system to Red Hat Subscription Management
-  hosts: all
+- name: Subscribe RHEL with subscription-manager
+  hosts: rhel_servers
   become: yes
   vars:
     rhsm_username: your_rhsm_username
     rhsm_password: your_rhsm_password
-    rhsm_force: true       # cambia a false si no quieres sobrescribir registro anterior
-    rhsm_auto_attach: true # puede ser false si prefieres usar pool ID específico
+    rhsm_force: true
+    rhsm_auto_attach: true
 
   tasks:
-    - name: Register system with Red Hat Subscription Manager
-      community.general.redhat_subscription:
-        state: present
-        username: "{{ rhsm_username }}"
-        password: "{{ rhsm_password }}"
-        force_register: "{{ rhsm_force }}"
-        auto_attach: "{{ rhsm_auto_attach }}"
+    - name: Register RHEL system
+      command: >
+        subscription-manager register
+        --username={{ rhsm_username }}
+        --password={{ rhsm_password }}
+        {% if rhsm_force %} --force {% endif %}
+        {% if rhsm_auto_attach %} --auto-attach {% endif %}
+      register: rhsm_output
+      changed_when: "'The system has been registered' in rhsm_output.stdout"
 
-    - name: Verify subscription status
+    - name: Show RHSM output
+      debug:
+        var: rhsm_output.stdout
+
+    - name: Run subscription-manager status
       command: subscription-manager status
       register: sub_status
       changed_when: false
