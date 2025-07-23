@@ -35,7 +35,7 @@
         key_name: "{{ aws_key_pair_name }}"
         image_id: "{{ aws_instance_ami_id }}"
         region: "{{ aws_region }}"
-        security_group: "ansible_tower_sg"
+        security_group: "demo_sg"
         wait: yes
         network:
           assign_public_ip: yes
