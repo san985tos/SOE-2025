@@ -3,7 +3,7 @@
   hosts: localhost
   vars:
     aws_region: us-east-2
-    aws_client_name: SOEdemo
+    aws_client_name: demo
 
   tasks:
     - name: "1 - create SOEdemo VPC"
